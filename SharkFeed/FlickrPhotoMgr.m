@@ -27,7 +27,7 @@ static NSInteger const infiniteLoopSize = 100000;
 @property (nonatomic, assign) NSInteger photosFetchedMetaData;
 @property (nonatomic, assign) NSInteger thumbnailImagesLoaded;
 @property (atomic, strong) NSOperationQueue *fetchPhotosQueue;
-@property (assign, assign) BOOL prefetching;
+@property (nonatomic, assign) BOOL prefetching;
 
 @property (copy) void (^completionHandler)(void);
 @property (copy) void (^reloadCompletionHandler)(void);
@@ -170,12 +170,15 @@ static NSInteger const infiniteLoopSize = 100000;
             } else {
                 NSLog(@"fetched 0 photos, so end of search results, now start looping");
                 _totalPhotos = infiniteLoopSize;
-                _prefetching = NO;
+                _photosRequested -= photosPerPage;
 
                 _completionHandler();
+                _prefetching = NO;
             }
         } else {
             NSLog(@"Error fetching URL from Flickr %@", error);
+            _photosRequested -= photosPerPage;
+            _prefetching = NO;
         }
     }];
     
